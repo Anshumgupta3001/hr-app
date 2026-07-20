@@ -13,7 +13,13 @@
       "Bash(curl -s http://localhost:5173 -o /dev/null -w \"web dev server status: %{http_code}\\\\n\")",
       "Bash(curl -s -X POST http://localhost:4000/api/documents/upload-url -H 'Authorization: Bearer garbage.invalid.token' -H 'Content-Type: application/json' -d '{\"companyId\":\"6a5dc4f12f2db4609e4b8ac2\",\"employeeId\":\"6a5dc4f22f2db4609e4b8ad3\",\"documentType\":\"profilePhoto\",\"fileName\":\"x.png\",\"fileType\":\"image/png\"}')",
       "Bash(curl -s -X POST http://localhost:4000/api/documents/upload-url -H 'Content-Type: application/json' -d '{\"companyId\":\"x\",\"employeeId\":\"y\",\"documentType\":\"profilePhoto\",\"fileName\":\"x.png\",\"fileType\":\"image/png\"}')",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(curl -s -i -X OPTIONS http://localhost:4000/api/auth/login -H 'Origin: http://localhost:5173' -H 'Access-Control-Request-Method: POST')",
+      "Bash(curl -s -i -X OPTIONS http://localhost:4000/api/auth/login -H 'Origin: https://evil.example.com' -H 'Access-Control-Request-Method: POST')",
+      "Bash(curl -s http://localhost:4000/health -o /dev/null -w \"status: %{http_code}\\\\n\")",
+      "Bash(curl -s -X OPTIONS http://localhost:4000/api/auth/login -H 'Origin: https://evil.example.com' -H 'Access-Control-Request-Method: POST')",
+      "Bash(curl -s -X POST http://localhost:4000/api/auth/login -H 'Origin: http://localhost:5173' -H 'Content-Type: application/json' -d '{\"email\":\"anshum@twisty.design\",\"password\":\"Omsairam@3001\"}')",
+      "Bash(python3 -c 'import sys,json;d=json.load\\(sys.stdin\\);print\\(\"login OK, token present:\", bool\\(d.get\\(\"token\"\\)\\)\\)')"
     ]
   }
 }

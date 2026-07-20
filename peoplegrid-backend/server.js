@@ -23,14 +23,22 @@ const documentRoutes = require('./routes/documentRoutes');
 
 const app = express();
 
-const DEV_ORIGINS = [
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-];
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 app.use(
   cors({
-    origin: DEV_ORIGINS,
+    origin(origin, callback) {
+      // Allow non-browser requests (no Origin header, e.g. curl/health checks).
+      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+        return callback(null, true);
+      }
+      const err = new Error(`Origin ${origin} is not allowed by CORS.`);
+      err.statusCode = 403;
+      callback(err);
+    },
   })
 );
 app.use(express.json());
