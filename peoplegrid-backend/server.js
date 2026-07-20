@@ -23,16 +23,31 @@ const documentRoutes = require('./routes/documentRoutes');
 
 const app = express();
 
+// A trailing slash makes an otherwise-identical origin fail a strict string
+// comparison (e.g. "http://16.176.11.26" vs "http://16.176.11.26/"), so both
+// the configured list and the incoming request's origin are normalized the
+// same way before comparing.
+function normalizeOrigin(origin) {
+  return origin.trim().replace(/\/+$/, '');
+}
+
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '')
   .split(',')
-  .map((origin) => origin.trim())
+  .map(normalizeOrigin)
   .filter(Boolean);
+
+console.log('[cors] allowed origins:', ALLOWED_ORIGINS);
 
 app.use(
   cors({
     origin(origin, callback) {
       // Allow non-browser requests (no Origin header, e.g. curl/health checks).
-      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      if (!origin) {
+        return callback(null, true);
+      }
+      const normalized = normalizeOrigin(origin);
+      console.log(`[cors] incoming origin: ${origin}`);
+      if (ALLOWED_ORIGINS.includes(normalized)) {
         return callback(null, true);
       }
       const err = new Error(`Origin ${origin} is not allowed by CORS.`);
