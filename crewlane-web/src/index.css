@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-cream text-ink font-body antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-clay-float,
+  .animate-clay-float-delayed,
+  .animate-clay-float-late {
+    animation: none;
+  }
+}

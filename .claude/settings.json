@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx expo *)",
+      "Bash(npm uninstall *)",
+      "Bash(perl -0pi -e \"s/    borderWidth: 3,\\\\n    borderColor: theme\\\\.colors\\\\.ink,\\\\n//g; s/    borderWidth: 2,\\\\n    borderColor: theme\\\\.colors\\\\.ink,\\\\n//g\" *.js)",
+      "Bash(sed -i '' -e 's/backgroundColor: '\\\\''rgba\\(245,239,226,0.6\\)'\\\\'',/backgroundColor: theme.colors.inputFill,/g' -e 's/backgroundColor: theme.shadow.color,/backgroundColor: '\\\\''transparent'\\\\'',/g' -e 's/placeholderTextColor=\"rgba\\(23,20,13,0.4\\)\"/placeholderTextColor={theme.colors.muted}/g' -e 's/borderBottomColor: '\\\\''rgba\\(23,20,13,0.1\\)'\\\\'',/borderBottomColor: '\\\\''rgba\\(51,47,58,0.08\\)'\\\\'',/g' -e 's/borderTopColor: '\\\\''rgba\\(23,20,13,0.1\\)'\\\\'',/borderTopColor: '\\\\''rgba\\(51,47,58,0.08\\)'\\\\'',/g' *.js)",
+      "Bash(sed -n '/activeCard: {/,/},/p' DashboardScreen.js)",
+      "Bash(sed -n '/iconChip: {/,/},/p' DashboardScreen.js)",
+      "Bash(curl -s http://localhost:4000/health)",
+      "Bash(npm --prefix crewlane-web install axios)",
+      "Bash(npm --prefix crewlane-mobile install axios expo-secure-store)",
+      "Bash(curl -s http://localhost:5173 -o /dev/null -w \"web dev server status: %{http_code}\\\\n\")",
+      "Bash(curl -s -X POST http://localhost:4000/api/documents/upload-url -H 'Authorization: Bearer garbage.invalid.token' -H 'Content-Type: application/json' -d '{\"companyId\":\"6a5dc4f12f2db4609e4b8ac2\",\"employeeId\":\"6a5dc4f22f2db4609e4b8ad3\",\"documentType\":\"profilePhoto\",\"fileName\":\"x.png\",\"fileType\":\"image/png\"}')",
+      "Bash(curl -s -X POST http://localhost:4000/api/documents/upload-url -H 'Content-Type: application/json' -d '{\"companyId\":\"x\",\"employeeId\":\"y\",\"documentType\":\"profilePhoto\",\"fileName\":\"x.png\",\"fileType\":\"image/png\"}')",
+      "Bash(node -e ' *)"
+    ]
+  }
+}

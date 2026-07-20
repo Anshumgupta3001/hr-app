@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "PeopleGrid",
+    "slug": "peoplegrid",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#f5efe2",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#f5efe2"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "edgeToEdgeEnabled": true
+    },
+    "plugins": [
+      "expo-asset"
+    ]
+  }
+}
