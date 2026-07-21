@@ -25,7 +25,15 @@
       "Bash(ALLOWED_ORIGINS=\"http://localhost:5173, http://16.176.11.26/\" node server.js)",
       "Bash(curl -s -i -X OPTIONS http://localhost:4000/api/auth/login -H \"Origin: http://16.176.11.26\" -H \"Access-Control-Request-Method: POST\")",
       "Bash(curl -s -i -X OPTIONS http://localhost:4000/api/auth/login -H \"Origin: http://16.176.11.26/\" -H \"Access-Control-Request-Method: POST\")",
-      "Bash(curl -s -X OPTIONS http://localhost:4000/api/auth/login -H \"Origin: https://evil.example.com\" -H \"Access-Control-Request-Method: POST\")"
+      "Bash(curl -s -X OPTIONS http://localhost:4000/api/auth/login -H \"Origin: https://evil.example.com\" -H \"Access-Control-Request-Method: POST\")",
+      "Bash(node --check controllers/attendanceController.js)",
+      "Bash(node --check /Users/anshumgupta/Desktop/hr/peoplegrid-backend/controllers/attendanceController.js)",
+      "Bash(npx eslint *)",
+      "Bash(node -e \"require\\('./models/CompanyLocation'\\); require\\('./models/ShiftPolicy'\\); require\\('./models/AttendanceRecord'\\); require\\('./models/AttendanceRegularization'\\); require\\('./models/AttendanceExemption'\\); console.log\\('models load OK'\\)\")",
+      "Bash(ps -p 76137 -o lstart=)",
+      "Bash(curl -s -o /dev/null -w \"GET /api/attendance/shift-policy -> %{http_code}\\\\n\" http://localhost:4000/api/attendance/shift-policy)",
+      "Bash(curl -s -o /dev/null -w \"GET /api/attendance/me -> %{http_code}\\\\n\" http://localhost:4000/api/attendance/me)",
+      "Bash(node -e \"require\\('/Users/anshumgupta/Desktop/hr/peoplegrid-backend/models/ShiftPolicy'\\); console.log\\('model OK'\\)\")"
     ]
   }
 }

@@ -20,6 +20,7 @@ const checklistRoutes = require('./routes/checklistRoutes');
 const assetRoutes = require('./routes/assetRoutes');
 const resignationRoutes = require('./routes/resignationRoutes');
 const documentRoutes = require('./routes/documentRoutes');
+const attendanceRoutes = require('./routes/attendanceRoutes');
 
 const app = express();
 
@@ -80,6 +81,7 @@ app.use('/api/checklist-tasks', checklistRoutes);
 app.use('/api/assets', assetRoutes);
 app.use('/api/resignations', resignationRoutes);
 app.use('/api/documents', documentRoutes);
+app.use('/api/attendance', attendanceRoutes);
 
 app.use(errorHandler);
 

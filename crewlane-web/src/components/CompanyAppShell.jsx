@@ -54,8 +54,28 @@ function buildCompanyItems(role, companyId, isManager) {
     items.push({ key: 'CompanySettings', label: 'Company Settings', to: `/settings/${companyId}` });
   }
 
+  items.push({ key: 'Attendance', label: 'Attendance', to: `/attendance/${companyId}` });
+  if (['admin', 'hr'].includes(role)) {
+    items.push({
+      key: 'TeamAttendance',
+      label: 'Team Attendance',
+      to: `/team-attendance/${companyId}`,
+    });
+    items.push({
+      key: 'RegularizationRequests',
+      label: 'Regularization Requests',
+      to: `/regularization-requests/${companyId}`,
+    });
+  }
+  if (role === 'admin') {
+    items.push({
+      key: 'AttendanceSettings',
+      label: 'Attendance Settings',
+      to: `/attendance-settings/${companyId}`,
+    });
+  }
+
   items.push(
-    { key: 'Attendance', label: 'Attendance', disabled: true },
     { key: 'Payroll', label: 'Payroll', disabled: true },
     {
       key: 'Documents',

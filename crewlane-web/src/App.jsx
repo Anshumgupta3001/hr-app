@@ -32,6 +32,10 @@ import AssetInventory from './pages/AssetInventory.jsx';
 import MyAssets from './pages/MyAssets.jsx';
 import Resignations from './pages/Resignations.jsx';
 import Resign from './pages/Resign.jsx';
+import MyAttendance from './pages/MyAttendance.jsx';
+import TeamAttendance from './pages/TeamAttendance.jsx';
+import AttendanceSettings from './pages/AttendanceSettings.jsx';
+import RegularizationRequests from './pages/RegularizationRequests.jsx';
 export default function App() {
   return (
     <BrowserRouter>
@@ -68,6 +72,10 @@ export default function App() {
         <Route path="/my-assets/:companyId" element={<MyAssets />} />
         <Route path="/resignations/:companyId" element={<Resignations />} />
         <Route path="/resign" element={<Resign />} />
+        <Route path="/attendance/:companyId" element={<MyAttendance />} />
+        <Route path="/team-attendance/:companyId" element={<TeamAttendance />} />
+        <Route path="/attendance-settings/:companyId" element={<AttendanceSettings />} />
+        <Route path="/regularization-requests/:companyId" element={<RegularizationRequests />} />
         <Route path="/my-profile" element={<MyProfile />} />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="*" element={<Navigate to="/" replace />} />

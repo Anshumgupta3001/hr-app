@@ -17,6 +17,11 @@ const ChecklistTask = require('../models/ChecklistTask');
 const Asset = require('../models/Asset');
 const ResignationRequest = require('../models/ResignationRequest');
 const EmployeeDocument = require('../models/EmployeeDocument');
+const CompanyLocation = require('../models/CompanyLocation');
+const ShiftPolicy = require('../models/ShiftPolicy');
+const AttendanceRecord = require('../models/AttendanceRecord');
+const AttendanceRegularization = require('../models/AttendanceRegularization');
+const AttendanceExemption = require('../models/AttendanceExemption');
 const { deleteObject } = require('../services/s3Service');
 const { wrap, httpError, sameId } = require('../utils/controllerHelpers');
 
@@ -159,6 +164,11 @@ const deleteCompany = wrap(async (req, res) => {
     Asset.deleteMany({ companyId }),
     ResignationRequest.deleteMany({ companyId }),
     EmployeeDocument.deleteMany({ companyId }),
+    CompanyLocation.deleteMany({ companyId }),
+    ShiftPolicy.deleteMany({ companyId }),
+    AttendanceRecord.deleteMany({ companyId }),
+    AttendanceRegularization.deleteMany({ companyId }),
+    AttendanceExemption.deleteMany({ companyId }),
   ]);
 
   await Company.deleteOne({ _id: companyId });

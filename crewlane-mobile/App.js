@@ -52,6 +52,10 @@ import AssetInventoryScreen from './screens/AssetInventoryScreen';
 import MyAssetsScreen from './screens/MyAssetsScreen';
 import ResignationsScreen from './screens/ResignationsScreen';
 import ResignScreen from './screens/ResignScreen';
+import MyAttendanceScreen from './screens/MyAttendanceScreen';
+import TeamAttendanceScreen from './screens/TeamAttendanceScreen';
+import AttendanceSettingsScreen from './screens/AttendanceSettingsScreen';
+import RegularizationRequestsScreen from './screens/RegularizationRequestsScreen';
 import DrawerContent from './components/DrawerContent';
 import { authService } from './services/authService';
 import { theme } from './theme';
@@ -104,6 +108,10 @@ function RootStack({ initialRouteName }) {
       <Stack.Screen name="Resignations" component={ResignationsScreen} />
       <Stack.Screen name="Resign" component={ResignScreen} />
       <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+      <Stack.Screen name="MyAttendance" component={MyAttendanceScreen} />
+      <Stack.Screen name="TeamAttendance" component={TeamAttendanceScreen} />
+      <Stack.Screen name="AttendanceSettings" component={AttendanceSettingsScreen} />
+      <Stack.Screen name="RegularizationRequests" component={RegularizationRequestsScreen} />
     </Stack.Navigator>
   );
 }

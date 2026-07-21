@@ -7,7 +7,16 @@ const GROUPS = [
   { label: 'People', keys: ['MyDepartment', 'OrgChart', 'Employees'] },
   {
     label: 'Time & Leave',
-    keys: ['MyLeave', 'LeaveRequests', 'LeavePolicy', 'Holidays', 'Attendance'],
+    keys: [
+      'MyLeave',
+      'LeaveRequests',
+      'LeavePolicy',
+      'Holidays',
+      'Attendance',
+      'TeamAttendance',
+      'RegularizationRequests',
+      'AttendanceSettings',
+    ],
   },
   {
     label: 'Finance & Assets',

@@ -14,7 +14,16 @@ const GROUPS = [
   { label: 'People', keys: ['MyDepartment', 'OrgChart', 'Employees'] },
   {
     label: 'Time & Leave',
-    keys: ['MyLeave', 'LeaveRequests', 'LeavePolicy', 'Holidays', 'Attendance'],
+    keys: [
+      'MyLeave',
+      'LeaveRequests',
+      'LeavePolicy',
+      'Holidays',
+      'Attendance',
+      'TeamAttendance',
+      'RegularizationRequests',
+      'AttendanceSettings',
+    ],
   },
   {
     label: 'Finance & Assets',
@@ -71,8 +80,24 @@ function buildCompanyItems(role, companyId, isManager) {
     items.push({ key: 'CompanySettings', label: 'Company Settings', screen: 'CompanySettings' });
   }
 
+  items.push({ key: 'Attendance', label: 'Attendance', screen: 'MyAttendance' });
+  if (['admin', 'hr'].includes(role)) {
+    items.push({ key: 'TeamAttendance', label: 'Team Attendance', screen: 'TeamAttendance' });
+    items.push({
+      key: 'RegularizationRequests',
+      label: 'Regularization Requests',
+      screen: 'RegularizationRequests',
+    });
+  }
+  if (role === 'admin') {
+    items.push({
+      key: 'AttendanceSettings',
+      label: 'Attendance Settings',
+      screen: 'AttendanceSettings',
+    });
+  }
+
   items.push(
-    { key: 'Attendance', label: 'Attendance', disabled: true },
     { key: 'Payroll', label: 'Payroll', disabled: true },
     {
       key: 'Documents',
