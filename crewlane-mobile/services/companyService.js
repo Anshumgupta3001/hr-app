@@ -66,6 +66,33 @@ export const companyService = {
   async deleteCompany(companyId) {
     await apiClient.delete(`/companies/${companyId}`);
   },
+
+  async getAdmins(companyId) {
+    const { data } = await apiClient.get(`/companies/${companyId}/admins`);
+    return data;
+  },
+
+  async addAdmin(companyId, { name, email, password }) {
+    try {
+      const { data } = await apiClient.post(`/companies/${companyId}/admins`, {
+        name,
+        email,
+        password,
+      });
+      return data;
+    } catch (err) {
+      throw new Error(apiErrorMessage(err, 'Failed to add admin.'));
+    }
+  },
+
+  async removeAdmin(companyId, employeeId) {
+    try {
+      const { data } = await apiClient.delete(`/companies/${companyId}/admins/${employeeId}`);
+      return data;
+    } catch (err) {
+      throw new Error(apiErrorMessage(err, 'Failed to remove admin.'));
+    }
+  },
 };
 
 export default companyService;

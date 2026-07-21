@@ -13,7 +13,7 @@ import { checklistService } from '../services/checklistService.js';
 const INPUT_CLASS =
   'w-full rounded-btn bg-clay-input shadow-clayPressed px-4 py-3 font-body text-ink placeholder:text-muted focus:outline-none focus:bg-white focus:ring-4 focus:ring-violet/20';
 
-const ROLE_OPTIONS = ['hr', 'manager', 'employee'];
+const BASE_ROLE_OPTIONS = ['hr', 'manager', 'employee'];
 
 export default function EmployeeForm() {
   const navigate = useNavigate();
@@ -26,6 +26,8 @@ export default function EmployeeForm() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState('employee');
+  const [initialRole, setInitialRole] = useState('employee');
+  const [adminConfirm, setAdminConfirm] = useState(false);
   const [departmentId, setDepartmentId] = useState('');
   const [designation, setDesignation] = useState('');
   const [status, setStatus] = useState('active');
@@ -74,6 +76,7 @@ export default function EmployeeForm() {
         setEmail(emp.email);
         setPassword(emp.password);
         setRole(emp.role);
+        setInitialRole(emp.role);
         setDepartmentId(emp.departmentId || '');
         setDesignation(emp.designation);
         setStatus(emp.status);
@@ -88,11 +91,22 @@ export default function EmployeeForm() {
 
   if (!user || !company) return null;
 
+  const roleOptions =
+    user.role === 'admin' ? [...BASE_ROLE_OPTIONS, 'admin'] : BASE_ROLE_OPTIONS;
   const canSave = name.trim() && email.trim() && password;
+  const isPromotingToAdmin = role === 'admin' && initialRole !== 'admin';
 
   async function handleSave(e) {
     e.preventDefault();
     if (!canSave) return;
+    if (isPromotingToAdmin && !adminConfirm) {
+      setAdminConfirm(true);
+      return;
+    }
+    await performSave();
+  }
+
+  async function performSave() {
     setError('');
     try {
       if (isEdit) {
@@ -200,10 +214,13 @@ export default function EmployeeForm() {
             <select
               id="role"
               value={role}
-              onChange={(e) => setRole(e.target.value)}
+              onChange={(e) => {
+                setRole(e.target.value);
+                setAdminConfirm(false);
+              }}
               className={INPUT_CLASS}
             >
-              {ROLE_OPTIONS.map((r) => (
+              {roleOptions.map((r) => (
                 <option key={r} value={r}>
                   {r.charAt(0).toUpperCase() + r.slice(1)}
                 </option>
@@ -288,18 +305,44 @@ export default function EmployeeForm() {
             </div>
           )}
           {error && <p className="text-coral font-bold text-sm">{error}</p>}
-          <div className="flex gap-3 pt-2">
-            <CandyButton type="submit" variant="primary" disabled={!canSave} className="flex-1">
-              {isEdit ? 'Save changes' : 'Add Employee'}
-            </CandyButton>
-            <CandyButton
-              type="button"
-              variant="secondary"
-              onClick={() => navigate(`/employees/${companyId}`)}
-            >
-              Cancel
-            </CandyButton>
-          </div>
+
+          {adminConfirm ? (
+            <div className="rounded-card bg-clay-input p-5 space-y-3">
+              <p className="font-bold text-sm">
+                Give {name || 'this person'} full Admin access to {company.name}? They&rsquo;ll be
+                able to manage all employees, leave policy, and company settings.
+              </p>
+              <div className="flex gap-3">
+                <CandyButton type="submit" variant="primary" small>
+                  Confirm
+                </CandyButton>
+                <CandyButton
+                  type="button"
+                  variant="secondary"
+                  small
+                  onClick={() => {
+                    setAdminConfirm(false);
+                    setRole(initialRole);
+                  }}
+                >
+                  Cancel
+                </CandyButton>
+              </div>
+            </div>
+          ) : (
+            <div className="flex gap-3 pt-2">
+              <CandyButton type="submit" variant="primary" disabled={!canSave} className="flex-1">
+                {isEdit ? 'Save changes' : 'Add Employee'}
+              </CandyButton>
+              <CandyButton
+                type="button"
+                variant="secondary"
+                onClick={() => navigate(`/employees/${companyId}`)}
+              >
+                Cancel
+              </CandyButton>
+            </div>
+          )}
         </form>
       </OutlinedCard>
 

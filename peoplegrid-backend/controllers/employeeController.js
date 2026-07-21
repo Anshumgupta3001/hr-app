@@ -38,6 +38,26 @@ function assertCanManage(req, employee) {
   }
 }
 
+// Only an admin (or superadmin) may grant admin access — hr cannot promote.
+function assertCanGrantAdmin(req) {
+  if (!['admin', 'superadmin'].includes(req.auth.role)) {
+    throw httpError(403, 'Only an admin can grant admin access.');
+  }
+}
+
+async function countAdmins(companyId, excludeEmployeeId = null) {
+  const filter = { companyId, role: 'admin' };
+  if (excludeEmployeeId) filter._id = { $ne: excludeEmployeeId };
+  return Employee.countDocuments(filter);
+}
+
+async function assertNotLastAdmin(companyId, excludeEmployeeId) {
+  const remaining = await countAdmins(companyId, excludeEmployeeId);
+  if (remaining === 0) {
+    throw httpError(400, 'A company must have at least one admin.');
+  }
+}
+
 const listEmployees = wrap(async (req, res) => {
   const { companyId } = req.query;
   if (req.auth.role === 'superadmin') {
@@ -82,6 +102,9 @@ const createEmployee = wrap(async (req, res) => {
 
   if (!name || !email || !password || !role) {
     throw httpError(400, 'Name, email, password, and role are required.');
+  }
+  if (role === 'admin') {
+    assertCanGrantAdmin(req);
   }
 
   const targetCompanyId =
@@ -151,6 +174,14 @@ const updateEmployee = wrap(async (req, res) => {
   delete updates._id;
   delete updates.id;
 
+  if (updates.role !== undefined && updates.role !== employee.role) {
+    if (updates.role === 'admin') {
+      assertCanGrantAdmin(req);
+    } else if (employee.role === 'admin') {
+      await assertNotLastAdmin(employee.companyId, employee._id);
+    }
+  }
+
   if (updates.email) {
     const normalizedEmail = updates.email.trim().toLowerCase();
     const existing = await Employee.findOne({ email: normalizedEmail });
@@ -175,6 +206,9 @@ const deleteEmployee = wrap(async (req, res) => {
   const employee = await Employee.findById(req.params.id);
   if (!employee) throw httpError(404, 'Employee not found.');
   assertCanManage(req, employee);
+  if (employee.role === 'admin') {
+    await assertNotLastAdmin(employee.companyId, employee._id);
+  }
   await Employee.deleteOne({ _id: employee._id });
   res.json({ deleted: true });
 });

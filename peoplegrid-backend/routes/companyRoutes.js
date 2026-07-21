@@ -14,6 +14,13 @@ router.post('/', roleMiddleware('superadmin'), companyController.createCompany);
 router.get('/:id', companyController.getCompany);
 router.patch('/:id', companyController.updateCompany);
 router.patch('/:id/departments', companyController.updateDepartments);
+router.get('/:id/admins', companyController.listAdmins);
+router.post('/:id/admins', roleMiddleware('superadmin'), companyController.addAdmin);
+router.delete(
+  '/:id/admins/:employeeId',
+  roleMiddleware('superadmin'),
+  companyController.removeAdmin
+);
 router.delete('/:id', roleMiddleware('superadmin'), companyController.deleteCompany);
 
 module.exports = router;

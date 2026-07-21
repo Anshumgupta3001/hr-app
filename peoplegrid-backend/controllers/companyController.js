@@ -134,6 +134,67 @@ const updateDepartments = wrap(async (req, res) => {
   res.json(company);
 });
 
+const listAdmins = wrap(async (req, res) => {
+  const companyId = req.params.id;
+  const isOwnCompanyStaff =
+    ['admin', 'hr'].includes(req.auth.role) && sameId(req.auth.companyId, companyId);
+  if (req.auth.role !== 'superadmin' && !isOwnCompanyStaff) {
+    throw httpError(403, "You do not have permission to view this company's admins.");
+  }
+  res.json(await Employee.find({ companyId, role: 'admin' }).sort({ createdAt: 1 }));
+});
+
+const addAdmin = wrap(async (req, res) => {
+  const companyId = req.params.id;
+  const company = await Company.findById(companyId);
+  if (!company) throw httpError(404, 'Company not found.');
+
+  const { name, email, password } = req.body || {};
+  if (!name || !email || !password) {
+    throw httpError(400, 'Name, email, and password are required.');
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+  if (await Employee.findOne({ email: normalizedEmail })) {
+    throw httpError(409, 'An account with this email already exists.');
+  }
+
+  const employee = await Employee.create({
+    companyId,
+    name: name.trim(),
+    email: normalizedEmail,
+    password: await bcrypt.hash(password, SALT_ROUNDS),
+    role: 'admin',
+    designation: 'Company Admin',
+  });
+
+  res.status(201).json(employee);
+});
+
+const removeAdmin = wrap(async (req, res) => {
+  const companyId = req.params.id;
+  const employee = await Employee.findById(req.params.employeeId);
+  if (!employee || !sameId(employee.companyId, companyId)) {
+    throw httpError(404, 'Admin not found for this company.');
+  }
+  if (employee.role !== 'admin') {
+    throw httpError(400, 'This employee is not an admin.');
+  }
+
+  const remaining = await Employee.countDocuments({
+    companyId,
+    role: 'admin',
+    _id: { $ne: employee._id },
+  });
+  if (remaining === 0) {
+    throw httpError(400, 'A company must have at least one admin.');
+  }
+
+  employee.role = 'employee';
+  await employee.save();
+  res.json(employee);
+});
+
 const deleteCompany = wrap(async (req, res) => {
   const companyId = req.params.id;
   const company = await Company.findById(companyId);
@@ -181,5 +242,8 @@ module.exports = {
   getCompany,
   updateCompany,
   updateDepartments,
+  listAdmins,
+  addAdmin,
+  removeAdmin,
   deleteCompany,
 };

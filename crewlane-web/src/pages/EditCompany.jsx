@@ -12,6 +12,144 @@ import { leavePolicyService } from '../services/leavePolicyService.js';
 const INPUT_CLASS =
   'w-full rounded-btn bg-clay-input shadow-clayPressed px-4 py-3 font-body text-ink placeholder:text-muted focus:outline-none focus:bg-white focus:ring-4 focus:ring-violet/20';
 
+function AdminsSection({ companyId, admins, onReload }) {
+  const [showForm, setShowForm] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [removeError, setRemoveError] = useState('');
+  const [removingId, setRemovingId] = useState(null);
+
+  const canAdd = name.trim() && email.trim() && password;
+
+  async function handleAdd(e) {
+    e.preventDefault();
+    if (!canAdd) return;
+    setSaving(true);
+    setError('');
+    try {
+      await companyService.addAdmin(companyId, { name: name.trim(), email, password });
+      setName('');
+      setEmail('');
+      setPassword('');
+      setShowForm(false);
+      await onReload();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleRemove(employeeId) {
+    setRemoveError('');
+    setRemovingId(employeeId);
+    try {
+      await companyService.removeAdmin(companyId, employeeId);
+      await onReload();
+    } catch (err) {
+      setRemoveError(err.message);
+    } finally {
+      setRemovingId(null);
+    }
+  }
+
+  return (
+    <OutlinedCard className="p-8 max-w-2xl">
+      <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
+        <h2 className="font-display font-bold text-xl">Admins</h2>
+        <CandyButton
+          type="button"
+          variant="mustard"
+          small
+          className="rounded-full"
+          onClick={() => setShowForm((v) => !v)}
+        >
+          + Add Admin
+        </CandyButton>
+      </div>
+
+      {showForm && (
+        <form onSubmit={handleAdd} className="space-y-4 mb-6 bg-clay-input rounded-card p-5">
+          <div>
+            <label className="block font-bold text-sm mb-1.5">Name</label>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Alex Rivera"
+              className={INPUT_CLASS}
+            />
+          </div>
+          <div>
+            <label className="block font-bold text-sm mb-1.5">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="alex@company.com"
+              className={INPUT_CLASS}
+            />
+          </div>
+          <div>
+            <label className="block font-bold text-sm mb-1.5">Password</label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Set their password"
+                className={`${INPUT_CLASS} pr-16`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 font-bold text-xs underline decoration-2 decoration-teal"
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
+          </div>
+          {error && <p className="text-coral font-bold text-sm">{error}</p>}
+          <CandyButton type="submit" variant="primary" small disabled={!canAdd || saving}>
+            Save Admin
+          </CandyButton>
+        </form>
+      )}
+
+      {removeError && <p className="text-coral font-bold text-sm mb-4">{removeError}</p>}
+
+      {admins.length === 0 ? (
+        <p className="text-muted font-bold">No admins yet.</p>
+      ) : (
+        <div className="space-y-3">
+          {admins.map((admin) => (
+            <div
+              key={admin.id}
+              className="flex items-center justify-between gap-4 bg-clay-input rounded-btn px-5 py-4"
+            >
+              <div>
+                <p className="font-display font-bold">{admin.name}</p>
+                <p className="text-xs text-muted mt-0.5">{admin.email}</p>
+              </div>
+              <CandyButton
+                variant="primary"
+                small
+                disabled={removingId === admin.id}
+                onClick={() => handleRemove(admin.id)}
+              >
+                Remove Admin
+              </CandyButton>
+            </div>
+          ))}
+        </div>
+      )}
+    </OutlinedCard>
+  );
+}
+
 export default function EditCompany() {
   const navigate = useNavigate();
   const { companyId } = useParams();
@@ -22,8 +160,13 @@ export default function EditCompany() {
   const [deptInput, setDeptInput] = useState('');
   const [departments, setDepartments] = useState([]);
   const [leaveRows, setLeaveRows] = useState([]);
+  const [admins, setAdmins] = useState([]);
   const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
+
+  async function loadAdmins() {
+    setAdmins(await companyService.getAdmins(companyId));
+  }
 
   useEffect(() => {
     async function load() {
@@ -48,6 +191,7 @@ export default function EditCompany() {
       setIndustry(found.industry);
       setDepartments(found.departments);
       setLeaveRows(policy.leaveTypes.map((t) => ({ ...t })));
+      setAdmins(await companyService.getAdmins(companyId));
     }
     load();
   }, [navigate, companyId]);
@@ -265,6 +409,10 @@ export default function EditCompany() {
           </CandyButton>
         </div>
       </OutlinedCard>
+
+      <div className="mt-6">
+        <AdminsSection companyId={companyId} admins={admins} onReload={loadAdmins} />
+      </div>
     </SuperAdminAppShell>
   );
 }

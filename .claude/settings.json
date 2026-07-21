@@ -33,7 +33,13 @@
       "Bash(ps -p 76137 -o lstart=)",
       "Bash(curl -s -o /dev/null -w \"GET /api/attendance/shift-policy -> %{http_code}\\\\n\" http://localhost:4000/api/attendance/shift-policy)",
       "Bash(curl -s -o /dev/null -w \"GET /api/attendance/me -> %{http_code}\\\\n\" http://localhost:4000/api/attendance/me)",
-      "Bash(node -e \"require\\('/Users/anshumgupta/Desktop/hr/peoplegrid-backend/models/ShiftPolicy'\\); console.log\\('model OK'\\)\")"
+      "Bash(node -e \"require\\('/Users/anshumgupta/Desktop/hr/peoplegrid-backend/models/ShiftPolicy'\\); console.log\\('model OK'\\)\")",
+      "Bash(node --check /Users/anshumgupta/Desktop/hr/peoplegrid-backend/controllers/employeeController.js)",
+      "Bash(node --check /Users/anshumgupta/Desktop/hr/peoplegrid-backend/controllers/companyController.js)",
+      "Bash(node --check /Users/anshumgupta/Desktop/hr/peoplegrid-backend/routes/companyRoutes.js)",
+      "Bash(grep -n \"canSave\\\\|handleSave\\\\|ROLE_OPTIONS\\\\|<select\\\\s*$\\\\|id=\\\\\"role\\\\\"\" /Users/anshumgupta/Desktop/hr/crewlane-web/src/pages/EmployeeForm.jsx)",
+      "Bash(grep -n \"error &&\\\\|CandyButton type=\\\\\"submit\\\\\"\\\\|Cancel\\\\s*$\" /Users/anshumgupta/Desktop/hr/crewlane-web/src/pages/EmployeeForm.jsx)",
+      "Bash(curl -s -o /dev/null -w \"GET /api/companies -> %{http_code}\\\\n\" http://localhost:4000/api/companies)"
     ]
   }
 }

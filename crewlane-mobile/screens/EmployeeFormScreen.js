@@ -55,6 +55,8 @@ export default function EmployeeFormScreen({ navigation, route }) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState('employee');
+  const [initialRole, setInitialRole] = useState('employee');
+  const [adminConfirm, setAdminConfirm] = useState(false);
   const [departmentId, setDepartmentId] = useState(null);
   const [designation, setDesignation] = useState('');
   const [status, setStatus] = useState('active');
@@ -109,6 +111,7 @@ export default function EmployeeFormScreen({ navigation, route }) {
           setEmail(emp.email);
           setPassword(emp.password);
           setRole(emp.role);
+          setInitialRole(emp.role);
           setDepartmentId(emp.departmentId);
           setDesignation(emp.designation);
           setStatus(emp.status);
@@ -130,12 +133,22 @@ export default function EmployeeFormScreen({ navigation, route }) {
     return <SafeAreaView style={styles.screen} />;
   }
 
-  const roleOptions = ['hr', 'manager', 'employee'];
+  const roleOptions =
+    user.role === 'admin' ? ['hr', 'manager', 'employee', 'admin'] : ['hr', 'manager', 'employee'];
 
   const canSave = name.trim() && email.trim() && password;
+  const isPromotingToAdmin = role === 'admin' && initialRole !== 'admin';
 
   async function handleSave() {
     if (!canSave) return;
+    if (isPromotingToAdmin && !adminConfirm) {
+      setAdminConfirm(true);
+      return;
+    }
+    await performSave();
+  }
+
+  async function performSave() {
     setError('');
     try {
       if (isEdit) {
@@ -245,7 +258,10 @@ export default function EmployeeFormScreen({ navigation, route }) {
             <OptionPills
               options={roleOptions}
               value={role}
-              onChange={setRole}
+              onChange={(r) => {
+                setRole(r);
+                setAdminConfirm(false);
+              }}
               labelFor={(r) => r.charAt(0).toUpperCase() + r.slice(1)}
             />
 
@@ -305,18 +321,47 @@ export default function EmployeeFormScreen({ navigation, route }) {
             )}
 
             {error ? <Text style={styles.error}>{error}</Text> : null}
-            <CandyButton
-              title={isEdit ? 'Save changes' : 'Add Employee'}
-              variant="primary"
-              disabled={!canSave}
-              onPress={handleSave}
-              style={styles.submit}
-            />
-            <CandyButton
-              title="Cancel"
-              variant="secondary"
-              onPress={() => navigation.navigate('Employees', { companyId })}
-            />
+
+            {adminConfirm ? (
+              <View style={styles.adminConfirmBox}>
+                <Text style={styles.adminConfirmText}>
+                  Give {name || 'this person'} full Admin access to {company.name}? They&rsquo;ll
+                  be able to manage all employees, leave policy, and company settings.
+                </Text>
+                <View style={styles.adminConfirmActions}>
+                  <CandyButton
+                    title="Confirm"
+                    variant="primary"
+                    small
+                    onPress={handleSave}
+                  />
+                  <CandyButton
+                    title="Cancel"
+                    variant="secondary"
+                    small
+                    onPress={() => {
+                      setAdminConfirm(false);
+                      setRole(initialRole);
+                    }}
+                  />
+                </View>
+              </View>
+            ) : (
+              <>
+                <CandyButton
+                  title={isEdit ? 'Save changes' : 'Add Employee'}
+                  variant="primary"
+                  disabled={!canSave}
+                  onPress={handleSave}
+                  style={styles.submit}
+                />
+                <CandyButton
+                  title="Cancel"
+                  variant="secondary"
+                  onPress={() => navigation.navigate('Employees', { companyId })}
+                />
+              </>
+            )}
           </OutlinedCard>
 
           <View style={styles.profileFormWrap}>
@@ -475,6 +520,22 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: theme.colors.coral,
     marginBottom: 12,
+  },
+  adminConfirmBox: {
+    backgroundColor: theme.colors.inputFill,
+    borderRadius: theme.radius.card,
+    padding: 16,
+  },
+  adminConfirmText: {
+    fontFamily: theme.fonts.bodyBold,
+    fontSize: 13,
+    color: theme.colors.ink,
+    lineHeight: 19,
+    marginBottom: 14,
+  },
+  adminConfirmActions: {
+    flexDirection: 'row',
+    gap: 10,
   },
   submit: {
     marginTop: 4,

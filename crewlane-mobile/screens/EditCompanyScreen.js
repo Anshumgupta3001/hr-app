@@ -31,9 +31,14 @@ export default function EditCompanyScreen({ navigation, route }) {
   const [deptInput, setDeptInput] = useState('');
   const [departments, setDepartments] = useState([]);
   const [leaveRows, setLeaveRows] = useState([]);
+  const [admins, setAdmins] = useState([]);
   const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
   const [loaded, setLoaded] = useState(false);
+
+  async function loadAdmins() {
+    setAdmins(await companyService.getAdmins(companyId));
+  }
 
   useFocusEffect(
     useCallback(() => {
@@ -67,6 +72,7 @@ export default function EditCompanyScreen({ navigation, route }) {
           setIndustry(found.industry);
           setDepartments(found.departments);
           setLeaveRows(policy.leaveTypes.map((t) => ({ ...t })));
+          setAdmins(await companyService.getAdmins(companyId));
           setLoaded(true);
         }
       }
@@ -253,9 +259,139 @@ export default function EditCompanyScreen({ navigation, route }) {
               style={styles.submit}
             />
           </OutlinedCard>
+
+          <AdminsSection companyId={companyId} admins={admins} onReload={loadAdmins} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
+  );
+}
+
+function AdminsSection({ companyId, admins, onReload }) {
+  const [showForm, setShowForm] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [removeError, setRemoveError] = useState('');
+  const [removingId, setRemovingId] = useState(null);
+
+  const canAdd = name.trim() && email.trim() && password;
+
+  async function handleAdd() {
+    if (!canAdd) return;
+    setSaving(true);
+    setError('');
+    try {
+      await companyService.addAdmin(companyId, { name: name.trim(), email, password });
+      setName('');
+      setEmail('');
+      setPassword('');
+      setShowForm(false);
+      await onReload();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleRemove(employeeId) {
+    setRemoveError('');
+    setRemovingId(employeeId);
+    try {
+      await companyService.removeAdmin(companyId, employeeId);
+      await onReload();
+    } catch (err) {
+      setRemoveError(err.message);
+    } finally {
+      setRemovingId(null);
+    }
+  }
+
+  return (
+    <OutlinedCard style={styles.adminsCard}>
+      <View style={styles.sectionHeaderRow}>
+        <Text style={styles.sectionTitle}>Admins</Text>
+        <CandyButton
+          title="+ Add Admin"
+          variant="mustard"
+          small
+          pill
+          onPress={() => setShowForm((v) => !v)}
+        />
+      </View>
+
+      {showForm && (
+        <View style={styles.inlineForm}>
+          <Text style={styles.label}>Name</Text>
+          <TextInput
+            style={styles.input}
+            value={name}
+            onChangeText={setName}
+            placeholder="Alex Rivera"
+            placeholderTextColor={theme.colors.muted}
+          />
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="alex@company.com"
+            placeholderTextColor={theme.colors.muted}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
+          <Text style={styles.label}>Password</Text>
+          <View style={styles.passwordWrap}>
+            <TextInput
+              style={[styles.input, styles.passwordInput]}
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Set their password"
+              placeholderTextColor={theme.colors.muted}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+            />
+            <Pressable style={styles.passwordToggle} onPress={() => setShowPassword((v) => !v)}>
+              <Text style={styles.passwordToggleText}>{showPassword ? 'Hide' : 'Show'}</Text>
+            </Pressable>
+          </View>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          <CandyButton
+            title="Save Admin"
+            variant="primary"
+            small
+            disabled={!canAdd || saving}
+            onPress={handleAdd}
+          />
+        </View>
+      )}
+
+      {removeError ? <Text style={styles.error}>{removeError}</Text> : null}
+
+      {admins.length === 0 ? (
+        <Text style={styles.empty}>No admins yet.</Text>
+      ) : (
+        admins.map((admin) => (
+          <View key={admin.id} style={styles.adminRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.adminName}>{admin.name}</Text>
+              <Text style={styles.adminEmail}>{admin.email}</Text>
+            </View>
+            <CandyButton
+              title="Remove Admin"
+              variant="primary"
+              small
+              disabled={removingId === admin.id}
+              onPress={() => handleRemove(admin.id)}
+            />
+          </View>
+        ))
+      )}
+    </OutlinedCard>
   );
 }
 
@@ -386,5 +522,67 @@ const styles = StyleSheet.create({
   },
   submit: {
     marginTop: 4,
+  },
+  adminsCard: {
+    marginTop: 20,
+    marginBottom: 8,
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginBottom: 16,
+  },
+  inlineForm: {
+    backgroundColor: theme.colors.inputFill,
+    borderRadius: theme.radius.card,
+    padding: 16,
+    marginBottom: 16,
+  },
+  passwordWrap: {
+    position: 'relative',
+  },
+  passwordInput: {
+    paddingRight: 64,
+  },
+  passwordToggle: {
+    position: 'absolute',
+    right: 14,
+    top: 14,
+  },
+  passwordToggleText: {
+    fontFamily: theme.fonts.bodyBold,
+    fontSize: 12,
+    color: theme.colors.teal,
+    textDecorationLine: 'underline',
+  },
+  empty: {
+    fontFamily: theme.fonts.bodyBold,
+    fontSize: 14,
+    color: theme.colors.muted,
+  },
+  adminRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: theme.colors.inputFill,
+    borderRadius: theme.radius.button,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 10,
+    gap: 10,
+  },
+  adminName: {
+    fontFamily: theme.fonts.displayBold,
+    fontSize: 14,
+    color: theme.colors.ink,
+  },
+  adminEmail: {
+    fontFamily: theme.fonts.body,
+    fontSize: 11,
+    color: theme.colors.muted,
+    marginTop: 2,
   },
 });
